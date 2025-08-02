@@ -191,25 +191,24 @@
       document.getElementById('greenPercentage').textContent = `Greens in Regulation: ${greenPercentage}%`;
     }
 
-    function saveAsCSV() {
-      const rows = Array.from(document.querySelectorAll('#golfStatsBody tr'));
-      const headers = ['Hole', 'Par', 'Score', 'Putts', 'Fairway', 'Pos', 'GIR', 'tClub', 'gClub', 'Penalties', 'Notes'];
-      const csvContent = [headers.join(',')];
-      rows.forEach(row => {
-        let rowData = [];
-        for (let cell of row.cells) {
-          const input = cell.querySelector("input");
-          rowData.push(input ? input.value : cell.textContent);
-        }
-        csvContent.push(rowData.join(','));
-      });
-      const blob = new Blob([csvContent
-                                   const blob = new Blob([csvContent.join('\n')], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'golf_stats.csv';
-      link.click();
+function saveAsCSV() {
+  const rows = Array.from(document.querySelectorAll('#golfStatsBody tr'));
+  const headers = ['Hole', 'Par', 'Score', 'Putts', 'Fairway', 'Pos', 'GIR', 'tClub', 'gClub', 'Penalties', 'Notes'];
+  const csvContent = [headers.join(',')];
+  rows.forEach(row => {
+    let rowData = [];
+    for (let cell of row.cells) {
+      const input = cell.querySelector("input");
+      rowData.push(input ? input.value : cell.textContent);
     }
+    csvContent.push(rowData.join(','));
+  });
+  const blob = new Blob([csvContent.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'golf_stats.csv';
+  link.click();
+}
 
     // Courses section logic
     const coursesButton = document.getElementById('courses-button');
@@ -243,3 +242,4 @@
   </script>
 </body>
 </html>
+
