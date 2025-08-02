@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="theme-color" content="#2e8b57">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="theme-color" content="#2e8b57">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -14,21 +14,17 @@
       margin: 0;
       padding: 20px;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
     }
-
     th, td {
       border: 1px solid #ddd;
       padding: 8px;
     }
-
     th {
       background-color: #f2f2f2;
     }
-
     input[type="number"],
     input[type="text"] {
       width: 100%;
@@ -36,7 +32,6 @@
       min-height: 44px;
       font-size: 1em;
     }
-
     button {
       padding: 10px;
       margin: 5px 0;
@@ -44,23 +39,23 @@
       cursor: pointer;
       width: 100%;
     }
-
     .summary {
       margin-top: 20px;
     }
-
+    #courses-section {
+      margin-top: 30px;
+      display: none;
+    }
     @media (max-width: 768px) {
       table {
         display: block;
         overflow-x: auto;
         white-space: nowrap;
       }
-
       th, td {
         padding: 4px;
         font-size: 0.9em;
       }
-
       .summary {
         font-size: smaller;
       }
@@ -90,6 +85,7 @@
     </table>
     <button type="button" onclick="addNextHole()">Next Hole</button>
     <button type="button" onclick="saveAsCSV()">Save as CSV</button>
+    <button type="button" id="courses-button">Courses</button>
     <div class="summary">
       <p>Total Score: <span id="totalScore">0</span></p>
       <p>Status: <span id="parStatus">Level Par</span></p>
@@ -97,6 +93,18 @@
       <p id="greenPercentage">Greens in Regulation: 0%</p>
     </div>
   </form>
+
+  <!-- Courses Section -->
+  <section id="courses-section">
+    <h2>Courses</h2>
+    <form id="add-course-form">
+      <input type="text" id="course-name" placeholder="Course Name" required />
+      <input type="number" id="course-holes" placeholder="Number of Holes" required />
+      <input type="number" id="course-par" placeholder="Total Par" required />
+      <button type="submit">Add Course</button>
+    </form>
+    <ul id="course-list"></ul>
+  </section>
 
   <script>
     let currentHole = 1;
@@ -109,10 +117,8 @@
 
     function addNextHole() {
       if (currentHole > 18) return;
-
       const tbody = document.getElementById('golfStatsBody');
       const row = document.createElement('tr');
-
       row.innerHTML = `
         <td>${currentHole}</td>
         <td>${parValues[currentHole - 1]}</td>
@@ -127,11 +133,9 @@
         <td><input type="text" name="notes${currentHole}"></td>
       `;
       tbody.appendChild(row);
-
       setTimeout(() => {
         document.getElementById(`score${currentHole}`).focus();
       }, 100);
-
       currentHole++;
     }
 
@@ -141,18 +145,14 @@
         const val = parseInt(input.value, 10);
         return sum + (isNaN(val) ? 0 : val);
       }, 0);
-
       const holesPlayed = Array.from(scoreInputs).filter(input => input.value.trim() !== "").length;
       const totalPar = parValues.slice(0, holesPlayed).reduce((a, b) => a + b, 0);
-
       document.getElementById('totalScore').textContent = totalScore;
-
       const status = totalScore < totalPar
         ? `${totalPar - totalScore} Under Par`
         : totalScore > totalPar
         ? `${totalScore - totalPar} Over Par`
         : "Level Par";
-
       document.getElementById('parStatus').textContent = status;
     }
 
@@ -161,13 +161,11 @@
       fairwaysAttempted = 0;
       greensHit = 0;
       greensAttempted = 0;
-
       const rows = Array.from(document.querySelectorAll('#golfStatsBody tr'));
       rows.forEach((row, index) => {
         const currentPar = parValues[index];
         const fairwayInput = row.querySelector(`input[name="fairway${index + 1}"]`);
         const girInput = row.querySelector(`input[name="gir${index + 1}"]`);
-
         if (currentPar !== 3 && fairwayInput) {
           const value = fairwayInput.value.trim().toLowerCase();
           if (value) {
@@ -175,7 +173,6 @@
             if (value === 'y') fairwaysHit++;
           }
         }
-
         if (girInput) {
           const value = girInput.value.trim().toLowerCase();
           if (value) {
@@ -184,15 +181,12 @@
           }
         }
       });
-
       const fairwayPercentage = fairwaysAttempted > 0
         ? ((fairwaysHit / fairwaysAttempted) * 100).toFixed(0)
         : "0";
-
       const greenPercentage = greensAttempted > 0
         ? ((greensHit / greensAttempted) * 100).toFixed(0)
         : "0";
-
       document.getElementById('fairwayPercentage').textContent = `Fairways Hit: ${fairwayPercentage}%`;
       document.getElementById('greenPercentage').textContent = `Greens in Regulation: ${greenPercentage}%`;
     }
@@ -201,45 +195,51 @@
       const rows = Array.from(document.querySelectorAll('#golfStatsBody tr'));
       const headers = ['Hole', 'Par', 'Score', 'Putts', 'Fairway', 'Pos', 'GIR', 'tClub', 'gClub', 'Penalties', 'Notes'];
       const csvContent = [headers.join(',')];
-
       rows.forEach(row => {
         let rowData = [];
         for (let cell of row.cells) {
           const input = cell.querySelector("input");
-          rowData.push(input ? input.value.trim() : cell.textContent.trim());
+          rowData.push(input ? input.value : cell.textContent);
         }
         csvContent.push(rowData.join(','));
       });
-
-      const csvData = csvContent.join('\n');
-      const today = new Date();
-      const fileName = `Golf Stats - ${today.toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`;
-
-      const blob = new Blob([csvData], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
+      const blob = new Blob([csvContent
+                                   const blob = new Blob([csvContent.join('\n')], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', fileName);
-      document.body.appendChild(link);
+      link.href = URL.createObjectURL(blob);
+      link.download = 'golf_stats.csv';
       link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-  addNextHole();
-});
-  </script>
-<script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("service-worker.js").then(reg => {
-        console.log("Service Worker registered:", reg);
-      }).catch(err => {
-        console.error("Service Worker error:", err);
-      });
+    // Courses section logic
+    const coursesButton = document.getElementById('courses-button');
+    const coursesSection = document.getElementById('courses-section');
+    const addCourseForm = document.getElementById('add-course-form');
+    const courseList = document.getElementById('course-list');
+
+    coursesButton.addEventListener('click', () => {
+      coursesSection.style.display = coursesSection.style.display === 'none' ? 'block' : 'none';
     });
-  }
-</script>
+
+    addCourseForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('course-name').value.trim();
+      const holes = document.getElementById('course-holes').value.trim();
+      const par = document.getElementById('course-par').value.trim();
+      if (name && holes && par) {
+        const li = document.createElement('li');
+        li.textContent = `${name} — ${holes} holes, Par ${par}`;
+        courseList.appendChild(li);
+        addCourseForm.reset();
+      }
+    });
+
+    // Auto-load all 18 holes on page load
+    window.onload = () => {
+      for (let i = 0; i < 18; i++) {
+        addNextHole();
+      }
+    };
+  </script>
 </body>
 </html>
