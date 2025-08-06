@@ -142,8 +142,8 @@
         <td><input type="text" name="fairway${currentHole}" id="fairway${currentHole}" oninput="updateStats()"></td>
         <td><input type="text" name="pos${currentHole}" id="pos${currentHole}"></td>
         <td><input type="text" name="gir${currentHole}" id="gir${currentHole}" oninput="updateStats()"></td>
-        <td><input type="text" name="tClub${currentHole}"></td>
-        <td><input type="text" name="gClub${currentHole}"></td>
+        <td><input type="text" name="Tee Club${currentHole}"></td>
+        <td><input type="text" name="Green Club${currentHole}"></td>
         <td><input type="number" name="penalties${currentHole}"></td>
         <td><input type="text" name="notes${currentHole}"></td>
       `;
@@ -208,7 +208,7 @@
 
 function saveAsCSV() {
   const rows = Array.from(document.querySelectorAll('#golfStatsBody tr'));
-  const headers = ['Hole', 'Par', 'Score', 'Putts', 'Fairway', 'Pos', 'GIR', 'tClub', 'gClub', 'Penalties', 'Notes'];
+  const headers = ['Hole', 'Par', 'Score', 'Putts', 'Fairway', 'Pos', 'GIR', 'Tee Club', 'Green Club', 'Penalties', 'Notes'];
   const csvContent = [headers.join(',')];
   rows.forEach(row => {
     let rowData = [];
@@ -257,6 +257,7 @@ function saveAsCSV() {
   </script>
 </body>
 </html>
+
 
 
 
