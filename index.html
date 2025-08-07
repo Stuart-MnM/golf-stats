@@ -288,13 +288,11 @@
   });
 
   // Splash screen button logic
-  document.getElementById('start-round-btn').addEventListener('click', () => {
-    document.getElementById('splash-screen').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-    for (let i = 0; i < 18; i++) {
-      addNextHole();
-    }
-  });
+document.getElementById('start-round-btn').addEventListener('click', () => {
+  document.getElementById('splash-screen').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+  addNextHole(); // Just one hole to start
+});
 
   document.getElementById('add-course-btn').addEventListener('click', () => {
     document.getElementById('splash-screen').style.display = 'none';
@@ -306,17 +304,9 @@
     alert("Feature coming soon: View saved rounds.");
   });
 
-  // Optional: Load 18 holes automatically if splash screen is skipped
-  window.onload = () => {
-    const splash = document.getElementById('splash-screen');
-    if (splash.style.display === 'none') {
-      for (let i = 0; i < 1; i++) {
-        addNextHole();
-      }
-    }
-  };
 </script>
 </body>
 </html>
+
 
 
