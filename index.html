@@ -1,22 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="apple-touch-startup-image"
-      media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)"
-      href="splash-iphone.png">
-  <link rel="apple-touch-startup-image" sizes="828x1792" href="splash-iphone.png">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  <meta name="theme-color" content="#2e8b57">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2e8b57">
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>Golf Stats</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="apple-touch-startup-image" sizes="828x1792" href="splash-iphone.png">
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 20px;
+    }
+    #splash-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: #d0f0c0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #splash-screen h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+    #splash-screen img {
+      max-width: 300px;
+      margin-bottom: 30px;
+    }
+    #splash-screen button {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      margin: 10px;
+      background-color: #2e8b57;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
     table {
       width: 100%;
@@ -25,15 +51,12 @@
     th, td {
       border: 1px solid #ddd;
       padding: 8px;
-  thead th {
-  position: sticky;
-  top: 0;
-  background-color: #f2f2f2;
-  z-index: 2;
-}
     }
-    th {
+    thead th {
+      position: sticky;
+      top: 0;
       background-color: #f2f2f2;
+      z-index: 2;
     }
     input[type="number"],
     input[type="text"] {
@@ -73,6 +96,18 @@
   </style>
 </head>
 <body>
+
+<!-- Splash Screen -->
+<div id="splash-screen">
+  <h1>GOLF STATS</h1>
+  <img src="coat-of-arms.png" alt="Coat of Arms">
+  <button id="start-round-btn">Start Round</button>
+  <button id="add-course-btn">Add Courses</button>
+  <button id="view-saved-btn">View Saved Rounds</button>
+</div>
+
+<!-- Main Content -->
+<div id="main-content" style="display: none;">
   <h1>Golf Stats</h1>
   <form id="golfStatsForm">
     <table>
@@ -102,11 +137,6 @@
       <p id="fairwayPercentage">Fairways Hit: 0%</p>
       <p id="greenPercentage">Greens in Regulation: 0%</p>
     </div>
-    <div style="max-height: 70vh; overflow-y: auto;">
-  <table>
-    <!-- your table content -->
-  </table>
-</div>
   </form>
 
   <!-- Courses Section -->
@@ -120,153 +150,172 @@
     </form>
     <ul id="course-list"></ul>
   </section>
+</div>
 
-  <script>
-    let currentHole = 1;
-    const parValues = [5, 3, 5, 4, 4, 4, 4, 3, 5, 4, 4, 3, 5, 3, 4, 4, 3, 4];
-    let totalScore = 0;
-    let fairwaysHit = 0;
-    let fairwaysAttempted = 0;
-    let greensHit = 0;
-    let greensAttempted = 0;
+<script>
+  let currentHole = 1;
+  const parValues = [5, 3, 5, 4, 4, 4, 4, 3, 5, 4, 4, 3, 5, 3, 4, 4, 3, 4];
+  let totalScore = 0;
+  let fairwaysHit = 0;
+  let fairwaysAttempted = 0;
+  let greensHit = 0;
+  let greensAttempted = 0;
 
-    function addNextHole() {
-      if (currentHole > 18) return;
-      const tbody = document.getElementById('golfStatsBody');
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${currentHole}</td>
-        <td>${parValues[currentHole - 1]}</td>
-        <td><input type="number" name="score${currentHole}" id="score${currentHole}" oninput="updateScore()"></td>
-        <td><input type="number" name="putts${currentHole}"></td>
-        <td><input type="text" name="fairway${currentHole}" id="fairway${currentHole}" oninput="updateStats()"></td>
-        <td><input type="text" name="pos${currentHole}" id="pos${currentHole}"></td>
-        <td><input type="text" name="gir${currentHole}" id="gir${currentHole}" oninput="updateStats()"></td>
-        <td><input type="text" name="Tee Club${currentHole}"></td>
-        <td><input type="text" name="Green Club${currentHole}"></td>
-        <td><input type="number" name="penalties${currentHole}"></td>
-        <td><input type="text" name="notes${currentHole}"></td>
-      `;
-      tbody.appendChild(row);
-      setTimeout(() => {
-        document.getElementById(`score${currentHole}`).focus();
-      }, 100);
-      currentHole++;
-    }
+  function addNextHole() {
+    if (currentHole > 18) return;
+    const tbody = document.getElementById('golfStatsBody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${currentHole}</td>
+      <td>${parValues[currentHole - 1]}</td>
+      <td><input type="number" name="score${currentHole}" id="score${currentHole}" oninput="updateScore()"></td>
+      <td><input type="number" name="putts${currentHole}"></td>
+      <td><input type="text" name="fairway${currentHole}" id="fairway${currentHole}" oninput="updateStats()"></td>
+      <td><input type="text" name="pos${currentHole}" id="pos${currentHole}"></td>
+      <td><input type="text" name="gir${currentHole}" id="gir${currentHole}" oninput="updateStats()"></td>
+      <td><input type="text" name="Tee Club${currentHole}"></td>
+      <td><input type="text" name="Green Club${currentHole}"></td>
+      <td><input type="number" name="penalties${currentHole}"></td>
+      <td><input type="text" name="notes${currentHole}"></td>
+    `;
+    tbody.appendChild(row);
+    setTimeout(() => {
+      document.getElementById(`score${currentHole}`).focus();
+    }, 100);
+    currentHole++;
+  }
 
-    function updateScore() {
-      const scoreInputs = document.querySelectorAll('#golfStatsBody input[name^="score"]');
-      totalScore = Array.from(scoreInputs).reduce((sum, input) => {
-        const val = parseInt(input.value, 10);
-        return sum + (isNaN(val) ? 0 : val);
-      }, 0);
-      const holesPlayed = Array.from(scoreInputs).filter(input => input.value.trim() !== "").length;
-      const totalPar = parValues.slice(0, holesPlayed).reduce((a, b) => a + b, 0);
-      document.getElementById('totalScore').textContent = totalScore;
-      const status = totalScore < totalPar
-        ? `${totalPar - totalScore} Under Par`
-        : totalScore > totalPar
-        ? `${totalScore - totalPar} Over Par`
-        : "Level Par";
-      document.getElementById('parStatus').textContent = status;
-    }
+  function updateScore() {
+    const scoreInputs = document.querySelectorAll('#golfStatsBody input[name^="score"]');
+    totalScore = Array.from(scoreInputs).reduce((sum, input) => {
+      const val = parseInt(input.value, 10);
+      return sum + (isNaN(val) ? 0 : val);
+    }, 0);
+    const holesPlayed = Array.from(scoreInputs).filter(input => input.value.trim() !== "").length;
+    const totalPar = parValues.slice(0, holesPlayed).reduce((a, b) => a + b, 0);
+    document.getElementById('totalScore').textContent = totalScore;
+    const status = totalScore < totalPar
+      ? `${totalPar - totalScore} Under Par`
+      : totalScore > totalPar
+      ? `${totalScore - totalPar} Over Par`
+      : "Level Par";
+    document.getElementById('parStatus').textContent = status;
+  }
 
-    function updateStats() {
-      fairwaysHit = 0;
-      fairwaysAttempted = 0;
-      greensHit = 0;
-      greensAttempted = 0;
-      const rows = Array.from(document.querySelectorAll('#golfStatsBody tr'));
-      rows.forEach((row, index) => {
-        const currentPar = parValues[index];
-        const fairwayInput = row.querySelector(`input[name="fairway${index + 1}"]`);
-        const girInput = row.querySelector(`input[name="gir${index + 1}"]`);
-        if (currentPar !== 3 && fairwayInput) {
-          const value = fairwayInput.value.trim().toLowerCase();
-          if (value) {
-            fairwaysAttempted++;
-            if (value === 'y') fairwaysHit++;
-          }
+ <script>
+  function updateStats() {
+    fairwaysHit = 0;
+    fairwaysAttempted = 0;
+    greensHit = 0;
+    greensAttempted = 0;
+
+    const rows = Array.from(document.querySelectorAll('#golfStatsBody tr'));
+    rows.forEach((row, index) => {
+      const currentPar = parValues[index];
+      const fairwayInput = row.querySelector(`input[name="fairway${index + 1}"]`);
+      const girInput = row.querySelector(`input[name="gir${index + 1}"]`);
+
+      if (currentPar !== 3 && fairwayInput) {
+        const value = fairwayInput.value.trim().toLowerCase();
+        if (value) {
+          fairwaysAttempted++;
+          if (value === 'y') fairwaysHit++;
         }
-        if (girInput) {
-          const value = girInput.value.trim().toLowerCase();
-          if (value) {
-            greensAttempted++;
-            if (value === 'y') greensHit++;
-          }
+      }
+
+      if (girInput) {
+        const value = girInput.value.trim().toLowerCase();
+        if (value) {
+          greensAttempted++;
+          if (value === 'y') greensHit++;
         }
-      });
-      const fairwayPercentage = fairwaysAttempted > 0
-        ? ((fairwaysHit / fairwaysAttempted) * 100).toFixed(0)
-        : "0";
-      const greenPercentage = greensAttempted > 0
-        ? ((greensHit / greensAttempted) * 100).toFixed(0)
-        : "0";
-      document.getElementById('fairwayPercentage').textContent = `Fairways Hit: ${fairwayPercentage}%`;
-      document.getElementById('greenPercentage').textContent = `Greens in Regulation: ${greenPercentage}%`;
-    }
-
-function saveAsCSV() {
-  const rows = Array.from(document.querySelectorAll('#golfStatsBody tr'));
-  const headers = ['Hole', 'Par', 'Score', 'Putts', 'Fairway', 'Pos', 'GIR', 'Tee Club', 'Green Club', 'Penalties', 'Notes'];
-  const csvContent = [headers.join(',')];
-  rows.forEach(row => {
-    let rowData = [];
-    for (let cell of row.cells) {
-      const input = cell.querySelector("input");
-      rowData.push(input ? input.value : cell.textContent);
-    }
-    csvContent.push(rowData.join(','));
-  });
-  const blob = new Blob([csvContent.join('\n')], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'golf_stats.csv';
-  link.click();
-}
-
-    // Courses section logic
-    const coursesButton = document.getElementById('courses-button');
-    const coursesSection = document.getElementById('courses-section');
-    const addCourseForm = document.getElementById('add-course-form');
-    const courseList = document.getElementById('course-list');
-
-    coursesButton.addEventListener('click', () => {
-      coursesSection.style.display = coursesSection.style.display === 'none' ? 'block' : 'none';
-    });
-
-    addCourseForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const name = document.getElementById('course-name').value.trim();
-      const holes = document.getElementById('course-holes').value.trim();
-      const par = document.getElementById('course-par').value.trim();
-      if (name && holes && par) {
-        const li = document.createElement('li');
-        li.textContent = `${name} — ${holes} holes, Par ${par}`;
-        courseList.appendChild(li);
-        addCourseForm.reset();
       }
     });
 
-    // Auto-load all 18 holes on page load
-    window.onload = () => {
-      for (let i = 0; i < 1; i++) {
+    const fairwayPercentage = fairwaysAttempted > 0
+      ? ((fairwaysHit / fairwaysAttempted) * 100).toFixed(0)
+      : "0";
+    const greenPercentage = greensAttempted > 0
+      ? ((greensHit / greensAttempted) * 100).toFixed(0)
+      : "0";
+
+    document.getElementById('fairwayPercentage').textContent = `Fairways Hit: ${fairwayPercentage}%`;
+    document.getElementById('greenPercentage').textContent = `Greens in Regulation: ${greenPercentage}%`;
+  }
+
+  function saveAsCSV() {
+    const rows = Array.from(document.querySelectorAll('#golfStatsBody tr'));
+    const headers = ['Hole', 'Par', 'Score', 'Putts', 'Fairway', 'Pos', 'GIR', 'Tee Club', 'Green Club', 'Penalties', 'Notes'];
+    const csvContent = [headers.join(',')];
+
+    rows.forEach(row => {
+      let rowData = [];
+      for (let cell of row.cells) {
+        const input = cell.querySelector("input");
+        rowData.push(input ? input.value : cell.textContent);
+      }
+      csvContent.push(rowData.join(','));
+    });
+
+    const blob = new Blob([csvContent.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'golf_stats.csv';
+    link.click();
+  }
+
+  // Courses section logic
+  const coursesButton = document.getElementById('courses-button');
+  const coursesSection = document.getElementById('courses-section');
+  const addCourseForm = document.getElementById('add-course-form');
+  const courseList = document.getElementById('course-list');
+
+  coursesButton.addEventListener('click', () => {
+    coursesSection.style.display = coursesSection.style.display === 'none' ? 'block' : 'none';
+  });
+
+  addCourseForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('course-name').value.trim();
+    const holes = document.getElementById('course-holes').value.trim();
+    const par = document.getElementById('course-par').value.trim();
+
+    if (name && holes && par) {
+      const li = document.createElement('li');
+      li.textContent = `${name} — ${holes} holes, Par ${par}`;
+      courseList.appendChild(li);
+      addCourseForm.reset();
+    }
+  });
+
+  // Splash screen button logic
+  document.getElementById('start-round-btn').addEventListener('click', () => {
+    document.getElementById('splash-screen').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    for (let i = 0; i < 18; i++) {
+      addNextHole();
+    }
+  });
+
+  document.getElementById('add-course-btn').addEventListener('click', () => {
+    document.getElementById('splash-screen').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    coursesSection.style.display = 'block';
+  });
+
+  document.getElementById('view-saved-btn').addEventListener('click', () => {
+    alert("Feature coming soon: View saved rounds.");
+  });
+
+  // Optional: Load 18 holes automatically if splash screen is skipped
+  window.onload = () => {
+    const splash = document.getElementById('splash-screen');
+    if (splash.style.display === 'none') {
+      for (let i = 0; i < 18; i++) {
         addNextHole();
       }
-    };
-  </script>
+    }
+  };
+</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
