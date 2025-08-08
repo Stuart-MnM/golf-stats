@@ -138,18 +138,35 @@
       <p id="greenPercentage">Greens in Regulation: 0%</p>
     </div>
   </form>
-
-  <!-- Courses Section -->
+  
+<!-- Courses Section -->
 <!-- Courses Section -->
 <section id="courses-section">
-  <h2>Courses</h2>
+  <h2>Add a Course</h2>
   <form id="add-course-form">
     <input type="text" id="course-name" placeholder="Course Name" required />
-    <input type="number" id="course-holes" placeholder="Number of Holes" required />
-    <input type="number" id="course-par" placeholder="Total Par" required />
-    <button type="submit">Add Course</button>
+    <div id="hole-pars"></div>
+    <button type="submit">Save Course</button>
   </form>
+
+  <h3>Saved Courses</h3>
   <ul id="course-list"></ul>
+
+  <h2>Start a Round</h2>
+  <select id="course-selector">
+    <option value="">-- Select a Course --</option>
+  </select>
+
+  <div id="round-form-container" style="display:none;">
+    <form id="round-form">
+      <h3>Record Your Strokes</h3>
+      <div id="strokes-inputs"></div>
+      <button type="submit">Save Round</button>
+    </form>
+  </div>
+
+  <h3>Saved Rounds</h3>
+  <ul id="rounds-list"></ul>
 </section>
 </div>
 
@@ -440,6 +457,7 @@ renderRounds();
 </script>
 </body>
 </html>
+
 
 
 
