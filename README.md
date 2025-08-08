@@ -1,2 +1,2 @@
 # Golf Stats
-This is my progressive web app for tracking golf scores.
+This is my simplified web app for tracking golf scores.
