@@ -140,16 +140,17 @@
   </form>
 
   <!-- Courses Section -->
-  <section id="courses-section">
-    <h2>Courses</h2>
-    <form id="add-course-form">
-      <input type="text" id="course-name" placeholder="Course Name" required />
-      <input type="number" id="course-holes" placeholder="Number of Holes" required />
-      <input type="number" id="course-par" placeholder="Total Par" required />
-      <button type="submit">Add Course</button>
-    </form>
-    <ul id="course-list"></ul>
-  </section>
+<!-- Courses Section -->
+<section id="courses-section">
+  <h2>Courses</h2>
+  <form id="add-course-form">
+    <input type="text" id="course-name" placeholder="Course Name" required />
+    <input type="number" id="course-holes" placeholder="Number of Holes" required />
+    <input type="number" id="course-par" placeholder="Total Par" required />
+    <button type="submit">Add Course</button>
+  </form>
+  <ul id="course-list"></ul>
+</section>
 </div>
 
 <script>
@@ -303,10 +304,143 @@ document.getElementById('start-round-btn').addEventListener('click', () => {
   document.getElementById('view-saved-btn').addEventListener('click', () => {
     alert("Feature coming soon: View saved rounds.");
   });
+const holeParsContainer = document.getElementById('hole-pars');
+const courseSelector = document.getElementById('course-selector');
+const roundFormContainer = document.getElementById('round-form-container');
+const strokesInputs = document.getElementById('strokes-inputs');
+const roundForm = document.getElementById('round-form');
+const roundsList = document.getElementById('rounds-list');
 
+const savedCourses = JSON.parse(localStorage.getItem('golfCourses')) || [];
+const savedRounds = JSON.parse(localStorage.getItem('golfRounds')) || [];
+
+function createParInputs() {
+  holeParsContainer.innerHTML = '';
+  for (let i = 1; i <= 18; i++) {
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.min = 3;
+    input.max = 5;
+    input.placeholder = `Hole ${i} Par`;
+    input.required = true;
+    input.id = `hole-par-${i}`;
+    holeParsContainer.appendChild(input);
+  }
+}
+createParInputs();
+
+addCourseForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = document.getElementById('course-name').value.trim();
+  const pars = [];
+
+  for (let i = 1; i <= 18; i++) {
+    const val = parseInt(document.getElementById(`hole-par-${i}`).value, 10);
+    if (isNaN(val)) {
+      alert(`Please enter a valid par for Hole ${i}`);
+      return;
+    }
+    pars.push(val);
+  }
+
+  const course = { name, pars };
+  savedCourses.push(course);
+  localStorage.setItem('golfCourses', JSON.stringify(savedCourses));
+  addCourseForm.reset();
+  createParInputs();
+  renderCourseList();
+  updateCourseSelector();
+});
+
+function renderCourseList() {
+  courseList.innerHTML = '';
+  savedCourses.forEach((course, index) => {
+    const li = document.createElement('li');
+    li.textContent = `${course.name} — Total Par: ${course.pars.reduce((a, b) => a + b, 0)}`;
+    courseList.appendChild(li);
+  });
+}
+
+function updateCourseSelector() {
+  courseSelector.innerHTML = '<option value="">-- Select a Course --</option>';
+  savedCourses.forEach((course, index) => {
+    const option = document.createElement('option');
+    option.value = index;
+    option.textContent = course.name;
+    courseSelector.appendChild(option);
+  });
+}
+
+courseSelector.addEventListener('change', () => {
+  const index = courseSelector.value;
+  if (index === '') {
+    roundFormContainer.style.display = 'none';
+    return;
+  }
+
+  const selectedCourse = savedCourses[index];
+  strokesInputs.innerHTML = '';
+  selectedCourse.pars.forEach((par, i) => {
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.min = 1;
+    input.placeholder = `Hole ${i + 1} Strokes (Par ${par})`;
+    input.required = true;
+    input.id = `stroke-${i}`;
+    strokesInputs.appendChild(input);
+  });
+
+  roundFormContainer.style.display = 'block';
+});
+
+roundForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const index = courseSelector.value;
+  const course = savedCourses[index];
+  const strokes = [];
+
+  for (let i = 0; i < 18; i++) {
+    const val = parseInt(document.getElementById(`stroke-${i}`).value, 10);
+    if (isNaN(val)) {
+      alert(`Please enter strokes for Hole ${i + 1}`);
+      return;
+    }
+    strokes.push(val);
+  }
+
+  const round = {
+    courseName: course.name,
+    strokes,
+    totalStrokes: strokes.reduce((a, b) => a + b, 0),
+    totalPar: course.pars.reduce((a, b) => a + b, 0),
+    date: new Date().toLocaleDateString()
+  };
+
+  savedRounds.push(round);
+  localStorage.setItem('golfRounds', JSON.stringify(savedRounds));
+  roundForm.reset();
+  roundFormContainer.style.display = 'none';
+  courseSelector.value = '';
+  renderRounds();
+});
+
+function renderRounds() {
+  roundsList.innerHTML = '';
+  savedRounds.forEach((round) => {
+    const li = document.createElement('li');
+    li.textContent = `${round.date} — ${round.courseName}: ${round.totalStrokes} strokes (Par ${round.totalPar})`;
+    roundsList.appendChild(li);
+  });
+}
+
+// Initial load
+renderCourseList();
+updateCourseSelector();
+renderRounds();
 </script>
 </body>
 </html>
+
 
 
 
